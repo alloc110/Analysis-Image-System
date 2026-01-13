@@ -14,3 +14,7 @@ dbt_packages/
 
 # Bỏ qua file cấu hình riêng của VS Code
 .vscode/
+
+# Data
+.csv
+/house_prices.csv
