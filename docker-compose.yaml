@@ -1,0 +1,56 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:nightly-ubuntu
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=123 # Thay đổi mật khẩu admin tại đây
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"   # Cổng truy cập Giao diện UI (Web)
+      - "4317:4317"     # Cổng OTLP (gRPC) - Dùng để nhận dữ liệu từ FastAPI
+      - "4318:4318"     # Cổng OTLP (HTTP)
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true # Kích hoạt nhận dữ liệu theo chuẩn OpenTelemetry
+    restart: unless-stopped
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk21
+    container_name: jenkins_docker
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"   # Cổng giao diện chính
+      - "50000:50000" # Cổng cho các Jenkins Agent (nếu có)
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # Giúp Jenkins chạy được lệnh docker
+
+    restart: unless-stopped
+
+
+volumes:
+  grafana-storage:
+  jenkins_home:
+
+
+networks:
+  monitoring-network:
+    driver: bridge

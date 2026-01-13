@@ -1,0 +1,16 @@
+# Bỏ qua môi trường ảo Python
+.venv/
+__pycache__/
+*.pyc
+
+# Bỏ qua các file chứa thông tin nhạy cảm (CỰC KỲ QUAN TRỌNG)
+.env
+profiles.yml
+
+# Bỏ qua các file log và dữ liệu tạm
+*.log
+target/
+dbt_packages/
+
+# Bỏ qua file cấu hình riêng của VS Code
+.vscode/
