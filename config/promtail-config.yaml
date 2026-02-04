@@ -1,0 +1,22 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+# Nơi lưu vị trí dòng log cuối cùng đã đọc (để không bị đọc trùng khi restart)
+positions:
+  filename: /tmp/positions.yaml
+
+# Địa chỉ của Loki để gửi log đến
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Cấu hình tự động quét log từ các Docker Container
+  - job_name: docker_logs
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'

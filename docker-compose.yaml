@@ -3,12 +3,14 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - monitoring-network
     restart: unless-stopped
   grafana:
-    image: grafana/grafana:nightly-ubuntu
+    image: grafana/grafana:latest-ubuntu
     container_name: grafana
     ports:
       - "3000:3000"
@@ -20,6 +22,8 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
+    networks:
+      - monitoring-network
   jaeger:
     image: jaegertracing/all-in-one:latest
     container_name: jaeger
@@ -30,7 +34,8 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true # Kích hoạt nhận dữ liệu theo chuẩn OpenTelemetry
     restart: unless-stopped
-
+    networks:
+      - monitoring-network
   jenkins:
     image: jenkins/jenkins:lts-jdk21
     container_name: jenkins_docker
@@ -42,10 +47,46 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock # Giúp Jenkins chạy được lệnh docker
-
+    networks:
+      - monitoring-network
     restart: unless-stopped
-
-
+  web-app:
+    # Chỉ định đường dẫn chứa Dockerfile để build
+    build: .
+    container_name: fastapi
+    ports:
+      - "8000:80"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    volumes:
+      - ./app:/code/app
+    networks:
+      - monitoring-network
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring-network
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      # Mount file cấu hình
+      - ./config/promtail-config.yaml:/etc/promtail/config.yml
+      # Mount log hệ thống
+      - /var/log:/var/log
+      # QUAN TRỌNG: Mount socket của Docker để Promtail biết container nào đang chạy
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount folder chứa log thực tế của Docker (Dành cho Linux)
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring-network
 volumes:
   grafana-storage:
   jenkins_home:

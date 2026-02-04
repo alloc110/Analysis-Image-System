@@ -18,3 +18,5 @@ dbt_packages/
 # Data
 .csv
 /house_prices.csv
+.env
+__pycache__/
