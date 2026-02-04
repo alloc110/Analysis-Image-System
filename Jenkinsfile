@@ -16,7 +16,7 @@ pipeline {
         stage('Build & Deploy') {
            
             steps {
-                sh 'docker-compose up -d --build web-app'
+                sh 'docker compose up -d --build --force-recreate'
             }
         }
     }
