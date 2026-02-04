@@ -18,7 +18,7 @@ pipeline {
         script {
             echo "--- Quét sạch mọi container trùng tên để dẹp đường ---"
             // Lệnh này sẽ xóa thẳng tay các container nếu chúng tồn tại, bất kể thuộc project nào
-            sh 'docker rm -f fastapi promtail jaeger loki prometheus || true'
+            sh 'docker rm -f fastapi promtail jaeger loki prometheus jenkins_docker|| true'
 
             echo "--- Đang dọn dẹp và khởi chạy hệ thống ---"
             // Dùng với biến môi trường từ Jenkins
