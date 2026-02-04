@@ -24,8 +24,8 @@ pipeline {
             // Dùng với biến môi trường từ Jenkins
             withCredentials([string(credentialsId: 'gemini-api-key-id', variable: 'GEMINI_KEY')]) {
                 // Truyền GEMINI_KEY vào GOOGLE_API_KEY cho docker-compose
-                sh "GOOGLE_API_KEY=${GEMINI_KEY} docker-compose down --remove-orphans"
-                sh "GOOGLE_API_KEY=${GEMINI_KEY} docker-compose up -d --build --force-recreate"
+                sh "GOOGLE_API_KEY=${GEMINI_KEY} docker compose down --remove-orphans"
+                sh "GOOGLE_API_KEY=${GEMINI_KEY} docker compose up -d --build --force-recreate"
             }
         }
     }
