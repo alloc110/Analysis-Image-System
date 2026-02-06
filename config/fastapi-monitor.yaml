@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: fastapi-monitor
+  namespace: monitoring-namespace # Đặt ở phòng giám sát
+  labels:
+    release: monitor-stack # Phải trùng với tên bạn đặt khi chạy lệnh helm install
+spec:
+  selector:
+    matchLabels:
+      app: fastapi # Tìm các Service có nhãn app=fastapi
+  namespaceSelector:
+    matchNames:
+      - default-namespace # Chỉ định tìm ở phòng này
+  endpoints:
+  - port: http # Tên cổng được định nghĩa trong Service của bạn
+    path: /metrics # Đường dẫn chứa dữ liệu thô (FastAPI cần cài thêm prometheus-fastapi-instrumentator)

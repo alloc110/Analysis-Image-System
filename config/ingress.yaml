@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: house-predict-ingress
+  namespace: default-namespace
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: detail-image.local # Tên miền ảo của bạn
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service # Tên Service bạn đã tạo
+            port:
+              number: 80 # Cổng của Service

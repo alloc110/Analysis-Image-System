@@ -1,0 +1,54 @@
+# 1. PHẦN DEPLOYMENT (Quản lý các bản sao ứng dụng)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-deployment
+  namespace: default-namespace # Thay bằng tên namespace bạn đã tạo
+  labels:
+    app: fastapi
+spec:
+  replicas: 3 # Đây chính là yêu cầu "2 con" của bạn
+  selector:
+    matchLabels:
+      app: fastapi
+  template:
+    metadata:
+      labels:
+        app: fastapi
+    spec:
+      containers:
+        - name: fastapi-container
+          image: allocknguyen/detail-image:v1 # Image bạn đã push lên Docker Hub
+          ports:
+            - containerPort: 8000
+          # Lấy Key từ Secret để bảo mật
+          env:
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gemini-secret
+                  key: GEMINI_API_KEY
+          # Giới hạn tài nguyên để tránh làm sập Node
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+# 2. PHẦN SERVICE (Bộ phận chia tải/Load Balancer nội bộ)
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service
+  namespace: default-namespace
+spec:
+  selector:
+    app: fastapi # Tìm các Pod có label app=fastapi để chia việc
+  ports:
+    - protocol: TCP
+      port: 80 # Cổng mà Service lắng nghe
+      targetPort: 8000 # Cổng thực tế của FastAPI bên trong Container
+  type: ClusterIP # Dùng nội bộ, nếu dùng Minikube có thể đổi thành LoadBalancer
