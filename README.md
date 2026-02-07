@@ -22,7 +22,6 @@ An intelligent microservices system that leverages **Google's Gemini API** to an
 - [Installation & Setup](#-installation--setup)
 - [Running the Application](#-running-the-application)
 - [Monitoring & Observability](#-monitoring--observability)
-- [Troubleshooting](#-troubleshooting)
 - [Demo Video](#-demo-video)
 
 ---
@@ -197,6 +196,6 @@ User: admin
 Password: (Paste the password from Step 1)
 Import Dashboard ID 12900 in Grafana.
 
-## ⛔ Troubleshooting
-
 ## ⚓ Demo Video
+
+![🎥 Xem Demo Video](Analysis-Image-System/assets/video/video_demo_fastapi.gif)
